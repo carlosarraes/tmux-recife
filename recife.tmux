@@ -1,12 +1,35 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-background='#1a1b26'
-surface='#2a2f41'
-foreground='#a9b1d6'
-accent='#7aa2f7'
-active='#9ece6a'
-alert='#e0af68'
+separator=$'\037'
+values="$(tmux display-message -p "#{@recife_background}${separator}#{@recife_surface}${separator}#{@recife_foreground}${separator}#{@recife_accent}${separator}#{@recife_active}${separator}#{@recife_alert}${separator}#{@recife_status_right}${separator}#{@recife_show_seer}")"
+IFS="$separator" read -r background surface foreground accent active alert custom_right show_seer <<<"$values"
+
+background="${background:-#1a1b26}"
+surface="${surface:-#2a2f41}"
+foreground="${foreground:-#a9b1d6}"
+accent="${accent:-#7aa2f7}"
+active="${active:-#9ece6a}"
+alert="${alert:-#e0af68}"
+show_seer="${show_seer:-on}"
+
+if [[ "$custom_right" == *'#('* ]]; then
+  tmux display-message 'Recife: @recife_status_right cannot contain #() commands'
+  custom_right=''
+fi
+
+seer_enabled=true
+case "$show_seer" in
+  0 | off | OFF | false | FALSE | no | NO) seer_enabled=false ;;
+esac
+
+status_right="$custom_right"
+if $seer_enabled; then
+  if [[ -n "$status_right" ]]; then
+    status_right+=' '
+  fi
+  status_right+='#{@seer_widget}'
+fi
 
 status_left="#[fg=$background,bg=#{?client_prefix,$alert,$accent},bold] #{?client_prefix,●,○} #S "
 window_status="#[fg=$foreground,bg=$background] #W "
@@ -17,7 +40,7 @@ tmux \
   set-option -g status-right-length 80 \; \
   set-option -g status-style "bg=$background" \; \
   set-option -g status-left "$status_left" \; \
-  set-option -g status-right '#{@seer_widget}' \; \
+  set-option -g status-right "$status_right" \; \
   set-option -g window-status-format "$window_status" \; \
   set-option -g window-status-current-format "$window_current" \; \
   set-option -g window-status-separator '' \; \

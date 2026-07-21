@@ -53,4 +53,36 @@ for option in status-left status-right window-status-format window-status-curren
   [[ "$(get_option "$option")" != *'#('* ]] || fail "$option contains a runtime command"
 done
 
+"${TMUX[@]}" set-option -g @recife_background '#101010'
+"${TMUX[@]}" set-option -g @recife_surface '#202020'
+"${TMUX[@]}" set-option -g @recife_foreground '#cccccc'
+"${TMUX[@]}" set-option -g @recife_accent '#66aaff'
+"${TMUX[@]}" set-option -g @recife_active '#77dd77'
+"${TMUX[@]}" set-option -g @recife_alert '#ffcc66'
+"${TMUX[@]}" set-option -g @recife_status_right '#{session_name}'
+run_theme
+
+assert_eq \
+  '#[fg=#101010,bg=#{?client_prefix,#ffcc66,#66aaff},bold] #{?client_prefix,●,○} #S ' \
+  "$(get_option status-left)" \
+  'overridden status-left'
+assert_eq '#[fg=#cccccc,bg=#101010] #W ' "$(get_option window-status-format)" 'overridden inactive window'
+assert_eq '#[fg=#77dd77,bg=#202020,bold] #W ' "$(get_option window-status-current-format)" 'overridden active window'
+assert_eq '#{session_name} #{@seer_widget}' "$(get_option status-right)" 'custom right plus Seer'
+
+"${TMUX[@]}" set-option -g @recife_show_seer off
+run_theme
+assert_eq '#{session_name}' "$(get_option status-right)" 'disabled Seer slot'
+
+"${TMUX[@]}" set-option -g @recife_show_seer on
+"${TMUX[@]}" set-option -g @recife_status_right '#(sleep 20)'
+run_theme
+assert_eq '#{@seer_widget}' "$(get_option status-right)" 'dynamic custom format rejected'
+[[ "$(get_option status-right)" != *'#('* ]] || fail 'rejected command reached status-right'
+
+before="$("${TMUX[@]}" show-options -g)"
+run_theme
+after="$("${TMUX[@]}" show-options -g)"
+assert_eq "$before" "$after" 'idempotent reload'
+
 printf 'integration checks passed\n'
