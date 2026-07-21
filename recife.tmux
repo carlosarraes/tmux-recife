@@ -1,9 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-separator=$'\037'
+separator="__recife_$$_${RANDOM}__"
 values="$(tmux display-message -p "#{@recife_background}${separator}#{@recife_surface}${separator}#{@recife_foreground}${separator}#{@recife_accent}${separator}#{@recife_active}${separator}#{@recife_alert}${separator}#{@recife_status_right}${separator}#{@recife_show_seer}")"
-IFS="$separator" read -r background surface foreground accent active alert custom_right show_seer <<<"$values"
+background="${values%%"$separator"*}"
+values="${values#*"$separator"}"
+surface="${values%%"$separator"*}"
+values="${values#*"$separator"}"
+foreground="${values%%"$separator"*}"
+values="${values#*"$separator"}"
+accent="${values%%"$separator"*}"
+values="${values#*"$separator"}"
+active="${values%%"$separator"*}"
+values="${values#*"$separator"}"
+alert="${values%%"$separator"*}"
+values="${values#*"$separator"}"
+custom_right="${values%%"$separator"*}"
+show_seer="${values#*"$separator"}"
 
 background="${background:-#1a1b26}"
 surface="${surface:-#2a2f41}"
