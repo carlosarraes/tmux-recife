@@ -17,4 +17,10 @@ if git ls-files | grep -Eq '(^|/)(\.superpowers|docs/superpowers|ai_docs)(/|$)';
   exit 1
 fi
 
+[[ -f README.md ]] || { echo 'README.md is required' >&2; exit 1; }
+[[ -f assets/recife.png ]] || { echo 'assets/recife.png is required' >&2; exit 1; }
+grep -q 'carlosarraes/tmux-recife' README.md || { echo 'README must contain TPM coordinates' >&2; exit 1; }
+grep -q 'zero-runtime tmux theme' README.md || { echo 'README must state the runtime guarantee' >&2; exit 1; }
+grep -q '@recife_show_seer' README.md || { echo 'README must document Seer integration' >&2; exit 1; }
+
 echo 'packaging checks passed'
