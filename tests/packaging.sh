@@ -22,5 +22,7 @@ fi
 grep -q 'carlosarraes/tmux-recife' README.md || { echo 'README must contain TPM coordinates' >&2; exit 1; }
 grep -q 'zero-runtime tmux theme' README.md || { echo 'README must state the runtime guarantee' >&2; exit 1; }
 grep -q '@recife_show_seer' README.md || { echo 'README must document Seer integration' >&2; exit 1; }
+grep -q '@recife_seer_accents' README.md || { echo 'README must document Seer accents' >&2; exit 1; }
+grep -q '@recife_waiting' README.md || { echo 'README must document the waiting color' >&2; exit 1; }
 
 echo 'packaging checks passed'

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 separator="__recife_$$_${RANDOM}__"
-values="$(tmux display-message -p "#{@recife_background}${separator}#{@recife_surface}${separator}#{@recife_foreground}${separator}#{@recife_accent}${separator}#{@recife_active}${separator}#{@recife_alert}${separator}#{@recife_status_right}${separator}#{@recife_show_seer}")"
+values="$(tmux display-message -p "#{@recife_background}${separator}#{@recife_surface}${separator}#{@recife_foreground}${separator}#{@recife_accent}${separator}#{@recife_active}${separator}#{@recife_alert}${separator}#{@recife_waiting}${separator}#{@recife_status_right}${separator}#{@recife_show_seer}${separator}#{@recife_seer_accents}")"
 background="${values%%"$separator"*}"
 values="${values#*"$separator"}"
 surface="${values%%"$separator"*}"
@@ -15,8 +15,12 @@ active="${values%%"$separator"*}"
 values="${values#*"$separator"}"
 alert="${values%%"$separator"*}"
 values="${values#*"$separator"}"
+waiting="${values%%"$separator"*}"
+values="${values#*"$separator"}"
 custom_right="${values%%"$separator"*}"
-show_seer="${values#*"$separator"}"
+values="${values#*"$separator"}"
+show_seer="${values%%"$separator"*}"
+seer_accents="${values#*"$separator"}"
 
 background="${background:-#1a1b26}"
 surface="${surface:-#2a2f41}"
@@ -24,7 +28,9 @@ foreground="${foreground:-#a9b1d6}"
 accent="${accent:-#7aa2f7}"
 active="${active:-#9ece6a}"
 alert="${alert:-#e0af68}"
+waiting="${waiting:-#565f89}"
 show_seer="${show_seer:-on}"
+seer_accents="${seer_accents:-on}"
 
 if [[ "$custom_right" == *'#('* ]]; then
   tmux display-message 'Recife: @recife_status_right cannot contain #() commands'
@@ -36,6 +42,11 @@ case "$show_seer" in
   0 | off | OFF | false | FALSE | no | NO) seer_enabled=false ;;
 esac
 
+seer_accents_enabled=true
+case "$seer_accents" in
+  0 | off | OFF | false | FALSE | no | NO) seer_accents_enabled=false ;;
+esac
+
 status_right="$custom_right"
 if $seer_enabled; then
   if [[ -n "$status_right" ]]; then
@@ -44,9 +55,15 @@ if $seer_enabled; then
   status_right+='#{@seer_widget}'
 fi
 
-status_left="#[fg=$background,bg=#{?client_prefix,$alert,$accent},bold] #{?client_prefix,●,○} #S "
+seer_accent="#{?#{==:#{@seer_theme_state},needs_input},$waiting,#{?#{==:#{@seer_theme_state},working},$active,$accent}}"
+if ! $seer_accents_enabled; then
+  seer_accent="$accent"
+fi
+active_accent="#{?client_prefix,$alert,$seer_accent}"
+
+status_left="#[fg=$background,bg=$active_accent,bold] #{?client_prefix,●,○} #S "
 window_status="#[fg=$foreground,bg=$background] #W "
-window_current="#[fg=$active,bg=$surface,bold] #W "
+window_current="#[fg=$active_accent,bg=$surface,bold] #W "
 
 tmux \
   set-option -g status-left-length 80 \; \
