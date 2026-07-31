@@ -55,15 +55,20 @@ if $seer_enabled; then
   status_right+='#{@seer_widget}'
 fi
 
-seer_accent="#{?#{==:#{@seer_theme_state},needs_input},$waiting,#{?#{==:#{@seer_theme_state},working},$active,$accent}}"
+session_accent="#{?#{==:#{@seer_session_state},needs_input},$waiting,#{?#{==:#{@seer_session_state},working},$active,$accent}}"
+active_window_accent="#{?#{==:#{@seer_window_state},needs_input},$waiting,#{?#{==:#{@seer_window_state},working},$active,$accent}}"
+inactive_window_accent="#{?#{==:#{@seer_window_state},needs_input},$waiting,#{?#{==:#{@seer_window_state},working},$active,$foreground}}"
 if ! $seer_accents_enabled; then
-  seer_accent="$accent"
+  session_accent="$accent"
+  active_window_accent="$accent"
+  inactive_window_accent="$foreground"
 fi
-active_accent="#{?client_prefix,$alert,$seer_accent}"
+session_accent="#{?client_prefix,$alert,$session_accent}"
+active_window_accent="#{?client_prefix,$alert,$active_window_accent}"
 
-status_left="#[fg=$background,bg=$active_accent,bold] #{?client_prefix,●,○} #S "
-window_status="#[fg=$foreground,bg=$background] #W "
-window_current="#[fg=$active_accent,bg=$surface,bold] #W "
+status_left="#[fg=$background,bg=$session_accent,bold] #{?client_prefix,●,○} #S "
+window_status="#[fg=$inactive_window_accent,bg=$background] #W "
+window_current="#[fg=$active_window_accent,bg=$surface,bold] #W "
 
 tmux \
   set-option -g status-left-length 80 \; \

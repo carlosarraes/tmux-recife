@@ -44,7 +44,7 @@ set -g @recife_status_right '#{host_short}'
 
 `@recife_status_right` accepts static tmux formats but deliberately rejects `#()` commands. This keeps the status line at zero runtime processes.
 
-With Seer installed, Recife colors the session marker and current window green while any online agent is working, gray while any needs input, and blue otherwise. Prefix mode stays yellow and takes priority. Set `@recife_seer_accents 'off'` to keep static blue accents; this is independent from `@recife_show_seer`.
+With Seer installed, Recife summarizes the current session in its left marker and colors every window name from agents in that window: green while working, gray while waiting for input, and the normal Recife colors otherwise. Other sessions and machines do not affect these accents. Prefix mode stays yellow and takes priority over the session marker and active window. Set `@recife_seer_accents 'off'` for static colors; this is independent from `@recife_show_seer`.
 
 ## Develop
 
